@@ -50,4 +50,30 @@ def buscar_cliente(id_cliente):
     return cliente
 
 
-#CRUD para la tabla Cliente
+
+#CRUD para la tabla Empleados
+
+def listar_empleados():
+    empleados = session.query(Empleado).all()
+    return empleados
+
+def agregar_empleado(nombre, rol):
+    nuevo_empleado = Empleado(nombre = nombre, rol = rol)
+    session.add(nuevo_empleado)
+    session.commit()
+    return nuevo_empleado   
+
+def eliminar_empleado(id_empleado):
+    empleado = session.query(Empleado).filter_by(id_empleado = id_empleado).first()
+    if empleado:
+        session.delete(empleado)
+        session.commit()
+        return True
+    return False
+
+def actualizar_empleado(id_empleado, nombre=None, rol=None):
+    empleado = session.query(Empleado).filter_by(id_empleado = id_empleado).first()
+
+def buscar_empleado(id_empleado):
+    empleado = session.query(Empleado).filter_by(id_empleado = id_empleado).first()
+    return empleado 
