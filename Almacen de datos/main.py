@@ -4,6 +4,14 @@ from crud_operations import *
 from utils import *
 
 #la funcion main junto con los primeros menus de al inicio, los puse mero abajo, por un error de lectura que olvide, pero no afecta en nada el funcionamiento del programa.
+#corregi los session, ya todas las funciones lo tienen.
+#asi como validacion en las id con valores id para que sean datos reales.
+#y tambien la validacion de las fechas en la funcion de encontrar empleados disponibles por rol en un rango de fechas.
+#y tambien la validacion de los roles en la funcion de agregar empleado.
+
+#modifique la funcion de ELIMINAR RESERVACION, porque en la base de datos es cancelada o activa
+#y es mejor que en la base de datos este de esa forma.
+
 
 
 #Funciones de los diferentes menus de los 25 CRUD de las 5 tablas.
@@ -42,11 +50,23 @@ def menu_clientes(session):
         elif opcion == "3":
             print("\n --- Eliminar cliente ---")
             id_cliente = input("ID del cliente: ")
-            cliente_eliminado = eliminar_cliente(session, id_cliente)
-            if cliente_eliminado:
-                print(f"Cliente {cliente_eliminado.nombre} eliminado exitosamente")
+            cliente = buscar_cliente(id_cliente)  # Verificar si el cliente existe
+
+            if cliente:
+                print(f"¿Deseas eliminar al cliente {cliente.nombre} (ID: {cliente.id_cliente})? (S/N)")
+                confirmacion = input("Respuesta: ").lower()
+
+                if confirmacion == "s":
+                    cliente_eliminado = eliminar_cliente(id_cliente)
+                    if cliente_eliminado:
+                        print(f"Cliente {cliente_eliminado.nombre} eliminado exitosamente")
+                    else:
+                        print("Error al eliminar cliente")
+                else:
+                    print("Eliminación cancelada")
             else:
-                print("Error al eliminar cliente")
+                print("Cliente no encontrado.")
+            
         elif opcion == "4":
             print("\n --- Modificar cliente ---")
             print("Deja el campo vacio si no deseas modificarlo")
@@ -81,7 +101,14 @@ def menu_clientes(session):
         elif opcion == "6":
             print("\n --- Listar eventos por fecha ---")
             # Implementar la función de listar eventos por fecha
+            fecha = input("Ingresa la fecha (YYYY-MM-DD): ")
+            try:
+                eventos = listar_eventos_por_fecha(session, fecha)
+                print(eventos)
+            except Exception as e:
+                print(f"Error al listar eventos!, procura escribir la fecha en el formato correcto YYYY-MM-DD") 
         elif opcion == "7":
+            print("Regresando al menu principal")
             break
         else:
             print("Opcion no valida. Intente de nuevo.")
@@ -123,11 +150,22 @@ def menu_empleados(session):
         elif opcion == "3":
             print("\n --- Eliminar empleado ---")
             id_empleado = input("ID del empleado: ")
-            empleado_eliminado = eliminar_empleado(session, id_empleado)
-            if empleado_eliminado:
-                print("Empleado eliminado exitosamente")
+            empleado = buscar_empleado(session, id_empleado)  # Verificar si el empleado existe
+
+            if empleado:
+                print(f"¿Deseas eliminar al empleado {empleado.nombre} (ID: {empleado.id_empleado})? (S/N)")
+                confirmacion = input("Respuesta: ").lower()  # Convertir a minúscula para evitar problemas
+
+                if confirmacion == "s":  # Si el usuario confirma con "S"
+                    empleado_eliminado = eliminar_empleado(session, id_empleado)
+                    if empleado_eliminado:
+                        print(f"Empleado {empleado_eliminado.nombre} eliminado exitosamente")
+                    else:
+                        print("Error al eliminar empleado")
+                else:  # Si el usuario no confirma
+                    print("Eliminación cancelada")
             else:
-                print("Error al eliminar empleado")
+                print("Empleado no encontrado.")
         elif opcion == "4":
             print("\n --- Modificar empleado ---")
             print("Deja el campo vacío si no deseas modificarlo")
@@ -166,7 +204,7 @@ def menu_empleados(session):
                 print("Rol no válido. Los roles válidos son: mesero, coordinador, chef, musico")
                 continue
             fecha_inicio_str = input("Fecha de inicio (YYYY-MM-DD HH:MM:SS): ").strip()
-            fecha_fin_str = input("Fecha de inicio (YYYY-MM-DD HH:MM:SS): ").strip()
+            fecha_fin_str = input("Fecha de finalizacion (YYYY-MM-DD HH:MM:SS): ").strip()
            
             # Validar fechas
             fecha_inicio = validar_fecha(fecha_inicio_str)
@@ -221,11 +259,23 @@ def menu_eventos(session):
         elif opcion == "3":
             print("\n --- Eliminar evento ---")
             id_evento = input("ID del evento: ")
-            evento_eliminado = eliminar_evento(session, id_evento)
-            if evento_eliminado:
-                print("Evento eliminado exitosamente")
+            evento = buscar_evento(session, id_evento)  # Verificar si el evento existe
+
+            if evento:
+                print(f"¿Deseas eliminar el evento {evento.nombre} (ID: {evento.id_evento})? (S/N)")
+                confirmacion = input("Respuesta: ").lower()  # Convertir a minúscula para evitar problemas
+
+                if confirmacion == "s":  # Si el usuario confirma con "S"
+                    evento_eliminado = eliminar_evento(session, id_evento)
+                    if evento_eliminado:
+                        print(f"Evento {evento_eliminado.nombre} eliminado exitosamente")
+                    else:
+                        print("Error al eliminar evento")
+                else:  # Si el usuario no confirma
+                    print("Eliminación cancelada")
             else:
-                print("Error al eliminar evento")
+                print("Evento no encontrado.")
+
         elif opcion == "4":
             print("\n --- Modificar evento ---")
             print("Deja el campo vacío si no deseas modificarlo")
@@ -298,11 +348,23 @@ def menu_salones(session):
         elif opcion == "3":
             print("\n --- Eliminar salón ---")
             id_salon = input("ID del salón: ")
-            salon_eliminado = eliminar_salon(session, id_salon)
-            if salon_eliminado:
-                print("Salón eliminado exitosamente")
+            salon = buscar_salon(session, id_salon)  # Verificar si el salón existe
+
+            if salon:
+                print(f"¿Deseas eliminar el salón {salon.nombre} (ID: {salon.id_salon})? (S/N)")
+                confirmacion = input("Respuesta: ").lower()  # Convertir a minúscula para evitar problemas
+
+                if confirmacion == "s":  # Si el usuario confirma con "S"
+                    salon_eliminado = eliminar_salon(session, id_salon)
+                    if salon_eliminado:
+                        print(f"Salón {salon_eliminado.nombre} eliminado exitosamente")
+                    else:
+                        print("Error al eliminar salón")
+                else:  # Si el usuario no confirma
+                    print("Eliminación cancelada")
             else:
-                print("Error al eliminar salón")
+                print("Salón no encontrado.")
+
         elif opcion == "4":
             print("\n --- Modificar salón ---")
             print("Deja el campo vacío si no deseas modificarlo")
@@ -341,7 +403,7 @@ def menu_reservaciones(session):
         print("\n --- Operaciones con Reservaciones ---")
         print("1. Listar reservaciones")
         print("2. Agregar reservacion")
-        print("3. Eliminar reservacion")
+        print("3. Cancelar reservacion")
         print("4. Modificar reservacion")
         print("5. Buscar reservacion")
         print("6. Regresar al menu principal")
@@ -374,13 +436,25 @@ def menu_reservaciones(session):
             else:
                 print("Error al agregar reservacion")
         elif opcion == "3":
-            print("\n --- Eliminar reservacion ---")
-            id_reservacion = input("ID de la reservacion: ")
-            reservacion_eliminada = eliminar_reservacion(session, id_reservacion)
-            if reservacion_eliminada:
-                print("Reservacion eliminada exitosamente")
+            print("\n --- Cancelar reservación ---")
+            id_reservacion = input("ID de la reservación: ")
+            reservacion = buscar_reservacion(session, id_reservacion)  # Verificar si la reservación existe
+
+            if reservacion:
+                print(f"¿Deseas cancelar la reservación {reservacion.nombre} (ID: {reservacion.id_reservacion})? (S/N)")
+                confirmacion = input("Respuesta: ").lower()  # Convertir a minúscula para evitar problemas
+
+                if confirmacion == "s":  # Si el usuario confirma con "S"
+                    reservacion_cancelada = cancelar_reservacion(session, id_reservacion)
+                    if reservacion_cancelada:
+                        print(f"Reservación {reservacion.nombre} cancelada exitosamente")
+                    else:
+                        print("Error al cancelar reservación")
+                else:  # Si el usuario no confirma
+                    print("Cancelación de reservación cancelada")
             else:
-                print("Error al eliminar reservacion")
+                print("Reservación no encontrada.")
+
         elif opcion == "4":
             print("\n --- Modificar reservacion ---")
             print("Deja el campo vacío si no deseas modificarlo")

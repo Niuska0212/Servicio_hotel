@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from modelos import Cliente, Empleado, Evento, Salone, Reservacione,AsignacionEmpleado, AsignacionSalone
 from sqlalchemy import and_
 from tabulate import tabulate
+import datetime
 
 
 #Configuracion de la coneccion a la base de datos
@@ -287,20 +288,39 @@ def agregar_reservacion(session, id_cliente, id_evento, id_salon, fecha_reservac
     except Exception as e:
         print("Error al agregar la reservacion:", e)
         return None
-    
-def eliminar_reservacion(session, id_reservacion):
-    reservacion = session.query(Reservacione).filter_by(id_reservacion = id_reservacion).first()
+
+ ##Comente la funcion de eliminar, para mas bien cancelar la reservacion
+ #y no borrarlo, porque asi estaba en la base de datos
+
+#def eliminar_reservacion(session, id_reservacion):
+#    reservacion = session.query(Reservacione).filter_by(id_reservacion = id_reservacion).first()
+#    if reservacion:
+#        try:
+#            session.delete(reservacion)
+#            session.commit()
+#            print("Reservacion eliminada correctamente.")
+#            return True
+#        except Exception as e:
+#            print(f"Error al eliminar la reservacion con ID {id_reservacion}: {e}")
+#            return False
+#    print("Reservacion no encontrada.")
+#    return False
+
+def cancelar_reservacion(session, id_reservacion):
+    reservacion = session.query(Reservacione).filter_by(id_reservacion=id_reservacion).first()
     if reservacion:
         try:
-            session.delete(reservacion)
+            reservacion.estado_reservacion = 'cancelada'
+            reservacion.fecha_cancelacion = datetime.datetime.now()  # Asegúrate de importar datetime
             session.commit()
-            print("Reservacion eliminada correctamente.")
+            print("Reservacion cancelada correctamente.")
             return True
         except Exception as e:
-            print(f"Error al eliminar la reservacion con ID {id_reservacion}: {e}")
+            print(f"Error al cancelar la reservacion con ID {id_reservacion}: {e}")
             return False
     print("Reservacion no encontrada.")
     return False
+
 
 def actualizar_reservacion(session, id_reservacion, id_cliente=None, id_evento=None, id_salon=None, fecha_reservacion=None, fecha_evento=None, hora_evento=None, cantidad_personas=None):
     reservacion = session.query(Reservacione).filter_by(id_reservacion = id_reservacion).first()
