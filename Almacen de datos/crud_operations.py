@@ -1,25 +1,26 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from modelos import Cliente, Empleado, Evento, Salone, Reservacione,AsignacionEmpleado
-
+from modelos import Cliente, Empleado, Evento, Salone, Reservacione,AsignacionEmpleado, AsignacionSalone
+from sqlalchemy import and_
+from tabulate import tabulate
 
 
 #Configuracion de la coneccion a la base de datos
-DATABASE_URL = "postgresql://postgres:12345@localhost/hotel"
-engine = create_engine(DATABASE_URL)
-Session = sessionmaker(bind=engine)
-session = Session()
+#DATABASE_URL = "postgresql://postgres:12345@localhost/hotel"
+#engine = create_engine(DATABASE_URL)
+#Session = sessionmaker(bind=engine)
+#session = Session()
 
 
 #CRUD para la tabla Cliente
-def listar_clientes():
+def listar_clientes(session):
     clientes = session.query(Cliente).all()
     if clientes:
         return clientes
     print("No hay clientes registrados.")
     return None
 
-def agregar_cliente(nombre, correo, telefono = None, direccion = None):
+def agregar_cliente(session,nombre, correo, telefono = None, direccion = None):
     if not nombre or not correo:
         print("El nombre y correo son obligatorios.")
         return None
@@ -34,7 +35,7 @@ def agregar_cliente(nombre, correo, telefono = None, direccion = None):
         return None
     
 
-def eliminar_cliente(id_cliente):
+def eliminar_cliente(session, id_cliente):
     cliente = session.query(Cliente).filter_by(id_cliente = id_cliente).first()
     if cliente:
         try:
@@ -48,7 +49,7 @@ def eliminar_cliente(id_cliente):
     print("Cliente no encontrado.")
     return False
 
-def actualizar_cliente(id_cliente, nombre=None, correo=None, telefono=None, direccion=None):
+def actualizar_cliente(session, id_cliente, nombre=None, correo=None, telefono=None, direccion=None):
     cliente = session.query(Cliente).filter_by(id_cliente = id_cliente).first()
     if cliente:
         try:
@@ -68,7 +69,7 @@ def actualizar_cliente(id_cliente, nombre=None, correo=None, telefono=None, dire
     print("Cliente no encontrado.")
     return False
 
-def buscar_cliente(id_cliente):
+def buscar_cliente(session, id_cliente):
     cliente = session.query(Cliente).filter_by(id_cliente = id_cliente).first()
     if cliente:
         return cliente
@@ -79,14 +80,14 @@ def buscar_cliente(id_cliente):
 
 #CRUD para la tabla Empleados
 
-def listar_empleados():
+def listar_empleados(session):
     empleados = session.query(Empleado).all()
     if empleados:
         return empleados
     print("No hay empleados registrados.")
     return None
 
-def agregar_empleado(nombre, rol):
+def agregar_empleado(session, nombre, rol):
     if not nombre or not rol:
         print("El nombre y el rol son obligatorios.")   
         return None
@@ -100,7 +101,7 @@ def agregar_empleado(nombre, rol):
         print("Error al agregar el empleado:", e)
         return None
 
-def eliminar_empleado(id_empleado):
+def eliminar_empleado(session, id_empleado):
     empleado = session.query(Empleado).filter_by(id_empleado = id_empleado).first()
     if empleado:
         try:
@@ -114,7 +115,7 @@ def eliminar_empleado(id_empleado):
     print("Empleado no encontrado.")
     return False
 
-def actualizar_empleado(id_empleado, nombre=None, rol=None):
+def actualizar_empleado(session, id_empleado, nombre=None, rol=None):
     empleado = session.query(Empleado).filter_by(id_empleado = id_empleado).first()
     if empleado:
         try:
@@ -130,7 +131,7 @@ def actualizar_empleado(id_empleado, nombre=None, rol=None):
     print("Empleado no encontrado.")
     return False
 
-def buscar_empleado(id_empleado):
+def buscar_empleado(session, id_empleado):
     empleado = session.query(Empleado).filter_by(id_empleado = id_empleado).first()
     if empleado:
         return empleado
@@ -140,14 +141,14 @@ def buscar_empleado(id_empleado):
 
 #CRUD para la tabla Eventos
 
-def listar_eventos():
+def listar_eventos(session):
     eventos = session.query(Evento).all()
     if eventos:
         return eventos
     print("No hay eventos registrados.")
     return None
 
-def agregar_evento(nombre_evento, descripcion, tipo_evento):
+def agregar_evento(session, nombre_evento, descripcion, tipo_evento):
     if not nombre_evento or not descripcion or not tipo_evento:
         print("El nombre, descripcion y tipo de evento son obligatorios.")
         return None
@@ -162,7 +163,7 @@ def agregar_evento(nombre_evento, descripcion, tipo_evento):
         return None
     
 
-def eliminar_evento(id_evento):
+def eliminar_evento(session, id_evento):
     evento = session.query(Evento).filter_by(id_evento = id_evento).first()
     if evento:
         try:
@@ -176,7 +177,7 @@ def eliminar_evento(id_evento):
     print("Evento no encontrado.")
     return False
 
-def actualizar_evento(id_evento, nombre_evento=None, descripcion=None, tipo_evento=None):
+def actualizar_evento(session, id_evento, nombre_evento=None, descripcion=None, tipo_evento=None):
     evento = session.query(Evento).filter_by(id_evento = id_evento).first()
     if evento:
         try:
@@ -195,7 +196,7 @@ def actualizar_evento(id_evento, nombre_evento=None, descripcion=None, tipo_even
     print("Evento no encontrado.")
     return False
 
-def buscar_evento(id_evento):
+def buscar_evento(session, id_evento):
     evento = session.query(Evento).filter_by(id_evento = id_evento).first()
     if evento:
         return evento
@@ -204,14 +205,14 @@ def buscar_evento(id_evento):
 
 
 #Crud para la tabla Salones
-def listar_salones():
+def listar_salones(session):
     salones = session.query(Salone).all()
     if salones:
         return salones
     print("No hay salones registrados.")
     return None
 
-def agregar_salon(nombre_salon, capacidad, descripcion):
+def agregar_salon(session,nombre_salon, capacidad, descripcion):
     if not nombre_salon or not capacidad or not descripcion:
         print("El nombre, capacidad y descripcion son obligatorios.")
         return None
@@ -225,7 +226,7 @@ def agregar_salon(nombre_salon, capacidad, descripcion):
         print("Error al agregar el salon:", e)
         return None
     
-def eliminar_salon(id_salon):
+def eliminar_salon(session,id_salon):
     salon = session.query(Salone).filter_by(id_salon = id_salon).first()
     if salon:
         try:
@@ -239,7 +240,7 @@ def eliminar_salon(id_salon):
     print("Salon no encontrado.")
     return False
 
-def actualizar_salon(id_salon, nombre_salon=None, capacidad=None, descripcion=None):
+def actualizar_salon(session, id_salon, nombre_salon=None, capacidad=None, descripcion=None):
     salon = session.query(Salone).filter_by(id_salon = id_salon).first()   
     if salon:
         try:
@@ -258,7 +259,7 @@ def actualizar_salon(id_salon, nombre_salon=None, capacidad=None, descripcion=No
     print("Salon no encontrado.")
     return False
 
-def buscar_salon(id_salon):
+def buscar_salon(session, id_salon):
     salon = session.query(Salone).filter_by(id_salon = id_salon).first()
     if salon:
         return salon
@@ -266,14 +267,14 @@ def buscar_salon(id_salon):
     return None
 
 #CRUD para la table reservaciones
-def listar_reservaciones():
+def listar_reservaciones(session):
     reservaciones = session.query(Reservacione).all()
     if reservaciones:
         return reservaciones
     print("No hay reservaciones registradas.")
     return None
 
-def agregar_reservacion(id_cliente, id_evento, id_salon, fecha_reservacion, fecha_evento, hora_evento, cantidad_personas):
+def agregar_reservacion(session, id_cliente, id_evento, id_salon, fecha_reservacion, fecha_evento, hora_evento, cantidad_personas):
     if not id_cliente or not id_evento or not id_salon or not fecha_reservacion or not fecha_evento or not hora_evento or not cantidad_personas:
         print("El id del cliente, id del evento, id del salon, fecha de reservacion, fecha del evento, hora del evento y cantidad de personas son obligatorios.")
         return None
@@ -287,7 +288,7 @@ def agregar_reservacion(id_cliente, id_evento, id_salon, fecha_reservacion, fech
         print("Error al agregar la reservacion:", e)
         return None
     
-def eliminar_reservacion(id_reservacion):
+def eliminar_reservacion(session, id_reservacion):
     reservacion = session.query(Reservacione).filter_by(id_reservacion = id_reservacion).first()
     if reservacion:
         try:
@@ -301,7 +302,7 @@ def eliminar_reservacion(id_reservacion):
     print("Reservacion no encontrada.")
     return False
 
-def actualizar_reservacion(id_reservacion, id_cliente=None, id_evento=None, id_salon=None, fecha_reservacion=None, fecha_evento=None, hora_evento=None, cantidad_personas=None):
+def actualizar_reservacion(session, id_reservacion, id_cliente=None, id_evento=None, id_salon=None, fecha_reservacion=None, fecha_evento=None, hora_evento=None, cantidad_personas=None):
     reservacion = session.query(Reservacione).filter_by(id_reservacion = id_reservacion).first()
     if reservacion:
         try:
@@ -328,7 +329,7 @@ def actualizar_reservacion(id_reservacion, id_cliente=None, id_evento=None, id_s
     print("Reservacion no encontrada.")
     return False
 
-def buscar_reservacion(id_reservacion):
+def buscar_reservacion(session, id_reservacion):
     reservacion = session.query(Reservacione).filter_by(id_reservacion = id_reservacion).first()
     if reservacion:
         return reservacion
@@ -338,7 +339,7 @@ def buscar_reservacion(id_reservacion):
 
 
 #Funcion para encontrar empleados disponibles por fechas
-def encontrar_empleados_disponibles(rol, fecha_inicio, fecha_fin):
+def encontrar_empleados_disponibles(session, rol, fecha_inicio, fecha_fin):
     try:
         #roles
         empleados_disponibles = session.query(Empleado).filter(Empleado.rol == rol).all()
@@ -368,3 +369,39 @@ def encontrar_empleados_disponibles(rol, fecha_inicio, fecha_fin):
 
     except Exception as e:
         print(f"\nError inesperado: {e}")
+
+
+
+## FUNCIÓN PARA LISTAR EVENTOS POR FECHA ##
+def listar_eventos_por_fecha(session, fecha):
+    resultados = (
+        session.query(Evento.nombre_evento, Evento.tipo_evento, Reservacione.fecha_evento, 
+                      Cliente.nombre.label("cliente_nombre"), Salone.nombre_salon)
+        .join(Reservacione, Evento.id_evento == Reservacione.id_evento)
+        .join(Cliente, Reservacione.id_cliente == Cliente.id_cliente)
+        .join(AsignacionSalone, Reservacione.id_reservacion == AsignacionSalone.id_reservacion)
+        .join(Salone, AsignacionSalone.id_salon == Salone.id_salon)
+        .filter(
+            and_(
+                Reservacione.fecha_evento >= fecha,
+                Reservacione.fecha_evento < fecha + ' 23:59:59',
+                Reservacione.estado_reservacion == 'activa'
+            )
+        )
+        .all()
+    )
+
+    eventos = []
+    for nombre_evento, tipo_evento, fecha_evento, cliente_nombre, nombre_salon in resultados:
+        eventos.append({
+            "nombre_evento": nombre_evento,
+            "tipo_evento": tipo_evento,
+            "fecha_evento": fecha_evento.strftime('%Y-%m-%d %H:%M:%S'),
+            "cliente": cliente_nombre,
+            "ubicacion": nombre_salon
+        })
+
+    if not eventos:
+        return "No hay eventos programados para la fecha indicada"
+
+    return tabulate(eventos, headers="keys", tablefmt="fancy_grid")
