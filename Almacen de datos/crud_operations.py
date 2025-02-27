@@ -1,14 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from modelos import Cliente, Empleado, Evento, Salone, Servicio
+from models import Cliente, Empleado, Evento, Salon, Servicio, AsignacionEmpleado
+from conexion import session
 
 
-
-#Configuracion de la coneccion a la base de datos
-DATABASE_URL = "postgresql://postgres:12345@localhost/hotel"
-engine = create_engine(DATABASE_URL)
-Session = sessionmaker(bind=engine)
-session = Session()
 
 
 #CRUD para la tabla Cliente
@@ -77,3 +72,33 @@ def buscar_empleado(id_empleado):
     empleado = session.query(Empleado).filter_by(id_empleado = id_empleado).first()
     return empleado 
 
+def encontrar_empleados_disponibles(rol, fecha_inicio, fecha_fin):
+    try:
+        #roles
+        empleados_disponibles = session.query(Empleado).filter(Empleado.rol == rol).all()
+        empleados_finales = []
+
+        #disponibilidad
+        for empleado in empleados_disponibles:
+            asignaciones = session.query(AsignacionEmpleado).filter(
+                AsignacionEmpleado.id_empleado == empleado.id_empleado
+            ).all()
+
+            disponible = True
+            for asignacion in asignaciones:
+                if not (asignacion.fecha_fin <= fecha_inicio or asignacion.fecha_inicio >= fecha_fin):
+                    disponible = False
+                    break 
+
+            if disponible:
+                empleados_finales.append(empleado)
+
+        if empleados_finales:
+            print(f"\nEmpleados disponibles para el rol '{rol}' entre {fecha_inicio} y {fecha_fin}:")
+            for empleado in empleados_finales:
+                print(f"ID: {empleado.id_empleado}, Nombre: {empleado.nombre}")
+        else:
+            print(f"\nNo hay empleados disponibles para el rol '{rol}' entre {fecha_inicio} y {fecha_fin}.")
+        
+    except Exception as e:
+        print(f"\nError inesperado: {e}")

@@ -1,51 +1,41 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from modelos import Cliente, Empleado, Evento, Salone, Servicio
-from crud_operations import *
+from crud_operations import encontrar_empleados_disponibles, session
+from utils import validar_fecha
 
+
+def mostrar_menu():
+    print("1. Encontrar empleados disponibles")
+    print("2. Salir")
+
+def main():
+    while True:
+        mostrar_menu()
+        opcion = input("Seleccione una opción: ").strip()
+
+        if opcion == "1":
+            #solicitar datos
+            rol = input("Ingrese el rol del empleado (mesero, coordinador, chef, musico): ").strip().lower()
+            fecha_inicio_str = input("Ingrese la fecha de inicio (YYYY-MM-DD HH:MM:SS): ").strip()
+            fecha_fin_str = input("Ingrese la fecha de fin (YYYY-MM-DD HH:MM:SS): ").strip()
+
+            #validar fechas
+            fecha_inicio = validar_fecha(fecha_inicio_str)
+            fecha_fin = validar_fecha(fecha_fin_str)
+
+            if fecha_inicio is None or fecha_fin is None:
+                print("\nError: Formato de fecha inválido. Use el formato YYYY-MM-DD HH:MM:SS.")
+                continue
+
+            if fecha_inicio >= fecha_fin:
+                print("\nError: La fecha de inicio debe ser anterior a la fecha de fin.")
+                continue
+
+            encontrar_empleados_disponibles(rol, fecha_inicio, fecha_fin)
+
+        elif opcion == "2":
+            print("Hasta pronto...")
+            break
+        else:
+            print("\nOpción no válida. Intente nuevamente.")
 
 if __name__ == "__main__":
-    DATABASE_URL = "postgresql://postgres:12345@localhost/hotel"
-    engine = create_engine(DATABASE_URL)
-    Session = sessionmaker(bind=engine)
-    session = Session()
-
-    #CRUD para la tabla Cliente
-    print("Listar clientes")
-    clientes = listar_clientes()
-    for cliente in clientes:
-        print(cliente.nombre)
-
-    print("\nAgregar cliente")
-    nuevo_cliente = agregar_cliente("Cachetada", "Cachetada@example.com", "12345678", "Calle 135")
-    print("Cliente agregado:", nuevo_cliente.nombre)
-
-    print("Listar clientes")
-    clientes = listar_clientes()
-    for cliente in clientes:
-        print(cliente.nombre)
-
-    print("\nBuscar cliente")
-    cliente = buscar_cliente(1)
-    print("Cliente encontrado:", cliente.nombre)
-
-    print("\nActualizar cliente")
-    actualizar_cliente(1, nombre="Juan Sope Perez")
-    cliente = buscar_cliente(1)
-    print("Cliente actualizado:", cliente.nombre)
-
-    print("\nEliminar cliente")
-    eliminar_cliente(1)    
-
-    print("Listar clientes")
-    clientes = listar_clientes()
-    for cliente in clientes:
-        print(cliente.nombre)
-
-
-
-
-
-
-
-
+    main()
