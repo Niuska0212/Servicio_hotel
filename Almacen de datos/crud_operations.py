@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from modelos import Cliente, Empleado, Evento, Salone, Servicio
+from modelos import Cliente, Empleado, Evento, Salone, Reservacione
 
 
 
@@ -14,40 +14,63 @@ session = Session()
 #CRUD para la tabla Cliente
 def listar_clientes():
     clientes = session.query(Cliente).all()
-    return clientes
+    if clientes:
+        return clientes
+    print("No hay clientes registrados.")
+    return None
 
 def agregar_cliente(nombre, correo, telefono = None, direccion = None):
-    nuevo_cliente = Cliente(nombre = nombre, correo = correo, telefono = telefono, direccion = direccion)
-    session.add(nuevo_cliente)
-    session.commit()
-    return nuevo_cliente
+    try:
+        nuevo_cliente = Cliente(nombre = nombre, correo = correo, telefono = telefono, direccion = direccion)
+        session.add(nuevo_cliente)
+        session.commit()
+        print("Cliente agregado correctamente.")
+        return nuevo_cliente
+    except Exception as e:
+        print("Error al agregar el cliente:, {e}")
+        return None
+    
 
 def eliminar_cliente(id_cliente):
     cliente = session.query(Cliente).filter_by(id_cliente = id_cliente).first()
     if cliente:
-        session.delete(cliente)
-        session.commit()
-        return True
+        try:
+            session.delete(cliente)
+            session.commit()
+            print("Cliente eliminado correctamente.")
+            return True
+        except Exception as e:
+            print("Error al eliminar el cliente:", e)
+            return False
+    print("Cliente no encontrado.")
     return False
 
 def actualizar_cliente(id_cliente, nombre=None, correo=None, telefono=None, direccion=None):
     cliente = session.query(Cliente).filter_by(id_cliente = id_cliente).first()
     if cliente:
-        if nombre:
-            cliente.nombre = nombre
-        if correo:
-            cliente.correo = correo
-        if telefono:
-            cliente.telefono = telefono
-        if direccion:
-            cliente.direccion = direccion
-        session.commit()
-        return True
+        try:
+            if nombre:
+                cliente.nombre = nombre
+            if correo:
+                cliente.correo = correo
+            if telefono:
+                cliente.telefono = telefono
+            if direccion:
+                cliente.direccion = direccion
+            session.commit()
+            return True
+        except Exception as e:
+            print("Error al actualizar el cliente:", e)
+            return False
+    print("Cliente no encontrado.")
     return False
 
 def buscar_cliente(id_cliente):
     cliente = session.query(Cliente).filter_by(id_cliente = id_cliente).first()
-    return cliente
+    if cliente:
+        return cliente
+    print("Cliente no encontrado.")
+    return None
 
 
 
@@ -55,25 +78,244 @@ def buscar_cliente(id_cliente):
 
 def listar_empleados():
     empleados = session.query(Empleado).all()
-    return empleados
+    if empleados:
+        return empleados
+    print("No hay empleados registrados.")
+    return None
 
 def agregar_empleado(nombre, rol):
-    nuevo_empleado = Empleado(nombre = nombre, rol = rol)
-    session.add(nuevo_empleado)
-    session.commit()
-    return nuevo_empleado   
+    try:
+        nuevo_empleado = Empleado(nombre = nombre, rol = rol)
+        session.add(nuevo_empleado)
+        session.commit()
+        print("Empleado agregado correctamente.")
+        return nuevo_empleado   
+    except Exception as e:
+        print("Error al agregar el empleado:", e)
+        return None
 
 def eliminar_empleado(id_empleado):
     empleado = session.query(Empleado).filter_by(id_empleado = id_empleado).first()
     if empleado:
-        session.delete(empleado)
-        session.commit()
-        return True
+        try:
+            session.delete(empleado)
+            session.commit()
+            print("Empleado eliminado correctamente.")
+            return True
+        except Exception as e:
+            print("Error al eliminar el empleado:", e)
+            return False
+    print("Empleado no encontrado.")
     return False
 
 def actualizar_empleado(id_empleado, nombre=None, rol=None):
     empleado = session.query(Empleado).filter_by(id_empleado = id_empleado).first()
+    if empleado:
+        try:
+            if nombre:
+                empleado.nombre = nombre
+            if rol:
+                empleado.rol = rol
+            session.commit()
+            return True
+        except Exception as e:
+            print("Error al actualizar el empleado:", e)
+            return False
+    print("Empleado no encontrado.")
+    return False
 
 def buscar_empleado(id_empleado):
     empleado = session.query(Empleado).filter_by(id_empleado = id_empleado).first()
-    return empleado 
+    if empleado:
+        return empleado
+    print("Empleado no encontrado.")
+    return None
+
+
+#CRUD para la tabla Eventos
+
+def listar_eventos():
+    eventos = session.query(Evento).all()
+    if eventos:
+        return eventos
+    print("No hay eventos registrados.")
+    return None
+
+def agregar_evento(nombre_evento, descripcion, tipo_evento):
+    try:
+        nuevo_evento = Evento(nombre_evento = nombre_evento, descripcion = descripcion, tipo_evento = tipo_evento)
+        session.add(nuevo_evento)
+        session.commit()
+        print("Evento agregado correctamente.") 
+        return nuevo_evento
+    except Exception as e:
+        print("Error al agregar el evento:", e) 
+        return None
+    
+
+def eliminar_evento(id_evento):
+    evento = session.query(Evento).filter_by(id_evento = id_evento).first()
+    if evento:
+        try:
+            session.delete(evento)
+            session.commit()
+            print("Evento eliminado correctamente.")
+            return True
+        except Exception as e:
+            print("Error al eliminar el evento:", e)
+            return False
+    print("Evento no encontrado.")
+    return False
+
+def actualizar_evento(id_evento, nombre_evento=None, descripcion=None, tipo_evento=None):
+    evento = session.query(Evento).filter_by(id_evento = id_evento).first()
+    if evento:
+        try:
+            if nombre_evento:
+                evento.nombre_evento = nombre_evento
+            if descripcion:
+                evento.descripcion = descripcion
+            if tipo_evento:
+                evento.tipo_evento = tipo_evento
+            session.commit()
+            print("Evento actualizado correctamente.")
+            return True
+        except Exception as e:
+            print("Error al actualizar el evento:", e)
+            return False
+    print("Evento no encontrado.")
+    return False
+
+def buscar_evento(id_evento):
+    evento = session.query(Evento).filter_by(id_evento = id_evento).first()
+    if evento:
+        return evento
+    print("Evento no encontrado.")
+    return None
+
+
+#Crud para la tabla Salones
+def listar_salones():
+    salones = session.query(Salone).all()
+    if salones:
+        return salones
+    print("No hay salones registrados.")
+    return None
+
+def agregar_salon(nombre_salon, capacidad, descripcion):
+    try:
+        nuevo_salon = Salone(nombre_salon = nombre_salon, capacidad = capacidad, descripcion = descripcion)
+        session.add(nuevo_salon)
+        session.commit()
+        print("Salon agregado correctamente.")
+        return nuevo_salon
+    except Exception as e:
+        print("Error al agregar el salon:", e)
+        return None
+    
+def eliminar_salon(id_salon):
+    salon = session.query(Salone).filter_by(id_salon = id_salon).first()
+    if salon:
+        try:
+            session.delete(salon)
+            session.commit()
+            print("Salon eliminado correctamente.")
+            return True
+        except Exception as e:
+            print("Error al eliminar el salon:", e)
+            return False
+    print("Salon no encontrado.")
+    return False
+
+def actualizar_salon(id_salon, nombre_salon=None, capacidad=None, descripcion=None):
+    salon = session.query(Salone).filter_by(id_salon = id_salon).first()   
+    if salon:
+        try:
+            if nombre_salon:
+                salon.nombre_salon = nombre_salon
+            if capacidad:
+                salon.capacidad = capacidad
+            if descripcion:
+                salon.descripcion = descripcion
+            session.commit()
+            print("Salon actualizado correctamente.")
+            return True
+        except Exception as e:
+            print("Error al actualizar el salon:", e)
+            return False
+    print("Salon no encontrado.")
+    return False
+
+def buscar_salon(id_salon):
+    salon = session.query(Salone).filter_by(id_salon = id_salon).first()
+    if salon:
+        return salon
+    print("Salon no encontrado.")
+    return None
+
+#CRUD para la table reservaciones
+def listar_reservaciones():
+    reservaciones = session.query(Reservacione).all()
+    if reservaciones:
+        return reservaciones
+    print("No hay reservaciones registradas.")
+    return None
+
+def agregar_reservacion(id_cliente, id_evento, id_salon, fecha_reservacion, fecha_evento, hora_evento, cantidad_personas):
+    try:
+        nueva_reservacion = Reservacione(id_cliente = id_cliente, id_evento = id_evento, id_salon = id_salon, fecha_reservacion = fecha_reservacion, fecha_evento = fecha_evento, hora_evento = hora_evento, cantidad_personas = cantidad_personas)
+        session.add(nueva_reservacion)
+        session.commit()
+        print("Reservacion agregada correctamente.")
+        return nueva_reservacion
+    except Exception as e:
+        print("Error al agregar la reservacion:", e)
+        return None
+    
+def eliminar_reservacion(id_reservacion):
+    reservacion = session.query(Reservacione).filter_by(id_reservacion = id_reservacion).first()
+    if reservacion:
+        try:
+            session.delete(reservacion)
+            session.commit()
+            print("Reservacion eliminada correctamente.")
+            return True
+        except Exception as e:
+            print("Error al eliminar la reservacion:", e)
+            return False
+    print("Reservacion no encontrada.")
+    return False
+
+def actualizar_reservacion(id_reservacion, id_cliente=None, id_evento=None, id_salon=None, fecha_reservacion=None, fecha_evento=None, hora_evento=None, cantidad_personas=None):
+    reservacion = session.query(Reservacione).filter_by(id_reservacion = id_reservacion).first()
+    if reservacion:
+        try:
+            if id_cliente:
+                reservacion.id_cliente = id_cliente
+            if id_evento:
+                reservacion.id_evento = id_evento
+            if id_salon:
+                reservacion.id_salon = id_salon
+            if fecha_reservacion:
+                reservacion.fecha_reservacion = fecha_reservacion
+            if fecha_evento:
+                reservacion.fecha_evento = fecha_evento
+            if hora_evento:
+                reservacion.hora_evento = hora_evento
+            if cantidad_personas:
+                reservacion.cantidad_personas = cantidad_personas
+            session.commit()
+            print("Reservacion actualizada correctamente.")
+            return True
+        except Exception as e:
+            print("Error al actualizar la reservacion:", e)
+            return False
+    print("Reservacion no encontrada.")
+    return False
+
+def buscar_reservacion(id_reservacion):
+    reservacion = session.query(Reservacione).filter_by(id_reservacion = id_reservacion).first()
+    if reservacion:
+        return reservacion
+    print("Reservacion no encontrada.")
+    return None

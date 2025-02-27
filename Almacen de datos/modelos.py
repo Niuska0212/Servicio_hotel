@@ -41,7 +41,7 @@ class Evento(Base):
     descripcion = Column(Text)
     tipo_evento = Column(String(50), nullable=False)
     fecha_creacion = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
-    fecha_actualizacion = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
+    fecha_actualizacion = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"), onupdate=text("CURRENT_TIMESTAMP"))
 
 
 class Salone(Base):
