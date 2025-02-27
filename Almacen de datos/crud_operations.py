@@ -19,7 +19,10 @@ def listar_clientes():
     print("No hay clientes registrados.")
     return None
 
-def agregar_cliente(nombre, correo, telefono = None, direccion = None):
+def agregar_cliente(nombre, correo, telefono, direccion):
+    if not nombre or not correo or not telefono or not direccion:
+        print("El nombre, correo, telefono y direccion son obligatorios.")
+        return None
     try:
         nuevo_cliente = Cliente(nombre = nombre, correo = correo, telefono = telefono, direccion = direccion)
         session.add(nuevo_cliente)
@@ -27,7 +30,7 @@ def agregar_cliente(nombre, correo, telefono = None, direccion = None):
         print("Cliente agregado correctamente.")
         return nuevo_cliente
     except Exception as e:
-        print("Error al agregar el cliente:, {e}")
+        print("Error al agregar el cliente: {e}")
         return None
     
 
@@ -40,7 +43,7 @@ def eliminar_cliente(id_cliente):
             print("Cliente eliminado correctamente.")
             return True
         except Exception as e:
-            print("Error al eliminar el cliente:", e)
+            print(f"Error al eliminar el cliente con ID {id_cliente}: {e}")
             return False
     print("Cliente no encontrado.")
     return False
@@ -84,6 +87,9 @@ def listar_empleados():
     return None
 
 def agregar_empleado(nombre, rol):
+    if not nombre or not rol:
+        print("El nombre y el rol son obligatorios.")   
+        return None
     try:
         nuevo_empleado = Empleado(nombre = nombre, rol = rol)
         session.add(nuevo_empleado)
@@ -103,7 +109,7 @@ def eliminar_empleado(id_empleado):
             print("Empleado eliminado correctamente.")
             return True
         except Exception as e:
-            print("Error al eliminar el empleado:", e)
+            print(f"Error al eliminar el empleado con ID {id_empleado}: {e}")
             return False
     print("Empleado no encontrado.")
     return False
@@ -142,6 +148,9 @@ def listar_eventos():
     return None
 
 def agregar_evento(nombre_evento, descripcion, tipo_evento):
+    if not nombre_evento or not descripcion or not tipo_evento:
+        print("El nombre, descripcion y tipo de evento son obligatorios.")
+        return None
     try:
         nuevo_evento = Evento(nombre_evento = nombre_evento, descripcion = descripcion, tipo_evento = tipo_evento)
         session.add(nuevo_evento)
@@ -162,7 +171,7 @@ def eliminar_evento(id_evento):
             print("Evento eliminado correctamente.")
             return True
         except Exception as e:
-            print("Error al eliminar el evento:", e)
+            print(f"Error al eliminar el evento con ID {id_evento}: {e}")
             return False
     print("Evento no encontrado.")
     return False
@@ -203,6 +212,9 @@ def listar_salones():
     return None
 
 def agregar_salon(nombre_salon, capacidad, descripcion):
+    if not nombre_salon or not capacidad or not descripcion:
+        print("El nombre, capacidad y descripcion son obligatorios.")
+        return None
     try:
         nuevo_salon = Salone(nombre_salon = nombre_salon, capacidad = capacidad, descripcion = descripcion)
         session.add(nuevo_salon)
@@ -222,7 +234,7 @@ def eliminar_salon(id_salon):
             print("Salon eliminado correctamente.")
             return True
         except Exception as e:
-            print("Error al eliminar el salon:", e)
+            print(f"Error al eliminar el salon con ID {id_salon}: {e}")
             return False
     print("Salon no encontrado.")
     return False
@@ -262,6 +274,9 @@ def listar_reservaciones():
     return None
 
 def agregar_reservacion(id_cliente, id_evento, id_salon, fecha_reservacion, fecha_evento, hora_evento, cantidad_personas):
+    if not id_cliente or not id_evento or not id_salon or not fecha_reservacion or not fecha_evento or not hora_evento or not cantidad_personas:
+        print("El id del cliente, id del evento, id del salon, fecha de reservacion, fecha del evento, hora del evento y cantidad de personas son obligatorios.")
+        return None
     try:
         nueva_reservacion = Reservacione(id_cliente = id_cliente, id_evento = id_evento, id_salon = id_salon, fecha_reservacion = fecha_reservacion, fecha_evento = fecha_evento, hora_evento = hora_evento, cantidad_personas = cantidad_personas)
         session.add(nueva_reservacion)
@@ -281,7 +296,7 @@ def eliminar_reservacion(id_reservacion):
             print("Reservacion eliminada correctamente.")
             return True
         except Exception as e:
-            print("Error al eliminar la reservacion:", e)
+            print(f"Error al eliminar la reservacion con ID {id_reservacion}: {e}")
             return False
     print("Reservacion no encontrada.")
     return False
