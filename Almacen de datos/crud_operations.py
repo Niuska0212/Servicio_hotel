@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from modelos import Cliente, Empleado, Evento, Salone, Reservacione
+from modelos import Cliente, Empleado, Evento, Salone, Reservacione,AsignacionEmpleado
 
 
 
@@ -334,3 +334,37 @@ def buscar_reservacion(id_reservacion):
         return reservacion
     print("Reservacion no encontrada.")
     return None
+
+
+
+#Funcion para encontrar empleados disponibles por fechas
+def encontrar_empleados_disponibles(rol, fecha_inicio, fecha_fin):
+    try:
+        #roles
+        empleados_disponibles = session.query(Empleado).filter(Empleado.rol == rol).all()
+        empleados_finales = []
+
+        #disponibilidad
+        for empleado in empleados_disponibles:
+            asignaciones = session.query(AsignacionEmpleado).filter(
+                AsignacionEmpleado.id_empleado == empleado.id_empleado
+            ).all()
+
+            disponible = True
+            for asignacion in asignaciones:
+                if not (asignacion.fecha_fin <= fecha_inicio or asignacion.fecha_inicio >= fecha_fin):
+                    disponible = False
+                    break 
+
+            if disponible:
+                empleados_finales.append(empleado)
+
+        if empleados_finales:
+            print(f"\nEmpleados disponibles para el rol '{rol}' entre {fecha_inicio} y {fecha_fin}:")
+            for empleado in empleados_finales:
+                print(f"ID: {empleado.id_empleado}, Nombre: {empleado.nombre}")
+        else:
+            print(f"\nNo hay empleados disponibles para el rol '{rol}' entre {fecha_inicio} y {fecha_fin}.")
+
+    except Exception as e:
+        print(f"\nError inesperado: {e}")

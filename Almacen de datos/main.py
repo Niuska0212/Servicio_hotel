@@ -2,39 +2,14 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from modelos import Cliente, Empleado, Evento, Salone, Reservacione
 from crud_operations import *
+from tabulate import tabulate
+from utils import *
 
-def mostrar_menu():
-    print("\n --- Menu Principal ---")
-    print("1. Operaciones con Clientes")
-    print("2. Operaciones con Empleados")
-    print("3. Operaciones con Eventos")
-    print("4. Operaciones con Salones")
-    print("5. Operaciones con Reservaciones")
-    print("6. Salir")
-
-def seleccionar_menu():
-    while True:
-        mostrar_menu()
-        opcion = input("Seleccione una opción: ")
-
-        if opcion == "1":
-            menu_clientes()
-        elif opcion == "2":
-            menu_empleados()
-        elif opcion == "3":
-            menu_eventos()
-
-if __name__ == "__main__":
-    DATABASE_URL = "postgresql://postgres:12345@localhost/hotel"
-    engine = create_engine(DATABASE_URL)
-    Session = sessionmaker(bind=engine)
-    session = Session()
-
-    seleccionar_menu()
-
-    session.close()
+#la funcion main junto con los primeros menus de al inicio, los puse mero abajo, por un error de lectura que olvide, pero no afecta en nada el funcionamiento del programa.
 
 
+#Funciones de los diferentes menus de los 25 CRUD de las 5 tablas.
+#Funcion menu de la tabla clientes
 def menu_clientes():
     while True:
         print("\n --- Operaciones con Clientes ---")
@@ -43,7 +18,8 @@ def menu_clientes():
         print("3. Eliminar cliente")
         print("4. Modificar cliente")
         print("5. Buscar cliente")
-        print("6. Regresar al menu principal")
+        print("6. Listar eventos por fecha")
+        print("7. Regresar al menu principal")
         opcion = input("Seleccione una opción: ")
 
         if opcion == "1":
@@ -52,8 +28,8 @@ def menu_clientes():
             if Clientes:
                 for cliente in Clientes:
                     print(f"ID: {cliente.id_cliente} Nombre: {cliente.nombre} Correo: {cliente.correo} Telefono: {cliente.telefono} Direccion: {cliente.direccion}")
-                else:
-                    print("No hay clientes registrados")
+            else:
+                print("No hay clientes registrados")
         elif opcion == "2":
             print("\n --- Agregar cliente ---")
             nombre = input("Nombre: ")
@@ -98,11 +74,15 @@ def menu_clientes():
                 print("Cliente no encontrado")
 
         elif opcion == "6":
+            print("\n --- Listar eventos por fecha ---")
+
+
+        elif opcion == "7":
             break
         else:
             print("Opcion no valida. Intente de nuevo.")
 
-
+#funcion menu de la tabla empleados
 def menu_empleados():
     ROLES_VALIDOS = ['mesero', 'coordinador', 'chef', 'musico']
     while True:
@@ -112,7 +92,8 @@ def menu_empleados():
         print("3. Eliminar empleado")
         print("4. Modificar empleado")
         print("5. Buscar empleado")
-        print("6. Regresar al menu principal")
+        print("6. Econtrar empleados disponibles por rol")
+        print("7. Regresar al menu principal")
         opcion = input("Seleccione una opción: ")
 
         if opcion == "1":
@@ -164,12 +145,34 @@ def menu_empleados():
                 print(f"ID: {empleado.id_empleado} Nombre: {empleado.nombre} Rol: {empleado.rol}")
             else:
                 print("Empleado no encontrado")
+
         elif opcion == "6":
+            print("\n --- Encontrar empleados disponibles por rol en un rango de fechas ---")
+            rol = input("Rol [mesero, coordinador, chef, musico]: ").strip().lower()
+            if rol not in ROLES_VALIDOS:
+                print("Rol no válido. Los roles válidos son: mesero, coordinador, chef, musico")
+                continue
+            fecha_inicio_str = input("Fecha de inicio (YYYY-MM-DD HH:MM:SS): ").strip()
+            fecha_fin_str = input("Fecha de inicio (YYYY-MM-DD HH:MM:SS): ").strip()
+           
+            #Validar fechas
+            fecha_inicio = validar_fecha(fecha_inicio_str)
+            fecha_fin = validar_fecha(fecha_fin_str)
+            
+            if fecha_inicio is None or fecha_fin is None:
+                print("Fecha no válida. Intente de nuevo con un formato YYYY-MM-DD HH:MM:SS.")
+                continue
+            if fecha_inicio >= fecha_fin:
+                print("La fecha de inicio debe ser anterior a la fecha de fin.")
+                continue
+            encontrar_empleados_disponibles(rol, fecha_inicio, fecha_fin)
+
+        elif opcion == "7":
             break
         else:
             print("Opción no válida. Intente de nuevo.")
 
-
+#funcion menu de la tabla eventos
 def menu_eventos():
     EVENTOS_VALIDOS = ['conferencia', 'boda', 'reunion_corporativa', 'cena_privada']
     while True:
@@ -229,7 +232,7 @@ def menu_eventos():
             print("\n --- Buscar evento por ID ---")
             id_evento = int
 
-
+#funcion menu de la tabla salones
 def menu_salones():
     while True:
         print("\n --- Operaciones con Salones ---")
@@ -291,7 +294,7 @@ def menu_salones():
         else:
             print("Opción no válida. Intente de nuevo.")
 
-
+#ufncion menu de la tabla reservaciones
 def menu_reservaciones():
     while True:
         print("\n --- Operaciones con Reservaciones ---")
@@ -352,3 +355,50 @@ def menu_reservaciones():
             break
         else:
             print("Opción no válida. Intente de nuevo.")
+
+
+
+
+#Esta funcion sive solo para poner como el menu, no es necesario para el funcionamiento del programa.
+def mostrar_menu():
+    print("\n --- Menu Principal ---")
+    print("1. Operaciones con Clientes")
+    print("2. Operaciones con Empleados")
+    print("3. Operaciones con Eventos")
+    print("4. Operaciones con Salones")
+    print("5. Operaciones con Reservaciones")
+    print("6. Salir")
+
+#Esta funcion es la que se encarga de seleccionar el menu que se desea ver
+#aqui pueden poner las funciones de sus menus.
+def seleccionar_menu():
+    while True:
+        mostrar_menu()
+        opcion = input("Seleccione una opción: ")
+
+        if opcion == "1":
+            menu_clientes()
+        elif opcion == "2":
+            menu_empleados()
+        elif opcion == "3":
+            menu_eventos()
+        elif opcion == "4":
+            menu_salones()
+        elif opcion == "5":
+            menu_reservaciones()    
+        elif opcion == "6":
+            break
+        else:
+            print("Opcion no valida. Intente de nuevo.")
+
+#Esta funcion es la que se encarga de conectar a la base de datos y cerrar la conexion
+#al finalizar el programa.
+if __name__ == "__main__":
+    DATABASE_URL = "postgresql://postgres:12345@localhost/hotel"
+    engine = create_engine(DATABASE_URL)
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    seleccionar_menu()
+
+    session.close()
