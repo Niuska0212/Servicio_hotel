@@ -19,9 +19,9 @@ def listar_clientes():
     print("No hay clientes registrados.")
     return None
 
-def agregar_cliente(nombre, correo, telefono, direccion):
-    if not nombre or not correo or not telefono or not direccion:
-        print("El nombre, correo, telefono y direccion son obligatorios.")
+def agregar_cliente(nombre, correo, telefono = None, direccion = None):
+    if not nombre or not correo:
+        print("El nombre y correo son obligatorios.")
         return None
     try:
         nuevo_cliente = Cliente(nombre = nombre, correo = correo, telefono = telefono, direccion = direccion)
