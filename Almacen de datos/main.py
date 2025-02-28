@@ -2,6 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from crud_operations import *
 from utils import *
+import re
 
 #la funcion main junto con los primeros menus de al inicio, los puse mero abajo, por un error de lectura que olvide, pero no afecta en nada el funcionamiento del programa.
 #corregi los session, ya todas las funciones lo tienen.
@@ -11,6 +12,7 @@ from utils import *
 
 #modifique la funcion de ELIMINAR RESERVACION, porque en la base de datos es cancelada o activa
 #y es mejor que en la base de datos este de esa forma.
+#tambien agrege una validacion de correo electronico
 
 
 
@@ -40,13 +42,21 @@ def menu_clientes(session):
             print("\n --- Agregar cliente ---")
             nombre = input("Nombre: ")
             correo = input("Correo: ") 
-            telefono = input("Telefono (opcional): ") or None
-            direccion = input("Direccion (opcional): ") or None
-            nuevo_cliente = agregar_cliente(session, nombre, correo, telefono, direccion)
-            if nuevo_cliente:
-                print(f"Cliente {nuevo_cliente.nombre} agregado exitosamente")
+
+            # Validar el formado del correo electronico
+            patron_correo = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+            if not re.match(patron_correo, correo):
+                print("Correo no válido. Intente de nuevo.")
+                continue
             else:
-                print("Error al agregar cliente")
+                telefono = input("Telefono (opcional): ") or None
+                direccion = input("Direccion (opcional): ") or None
+                try:
+                    nuevo_cliente = agregar_cliente(session, nombre, correo, telefono, direccion)
+                    if nuevo_cliente:
+                        print(f"Cliente {nuevo_cliente.nombre} agregado exitosamente")
+                except Exception as e:
+                    print("Error al agregar cliente: ", e)  # Imprimir el error
         elif opcion == "3":
             print("\n --- Eliminar cliente ---")
             id_cliente = input("ID del cliente: ")
@@ -232,7 +242,8 @@ def menu_eventos(session):
         print("3. Eliminar evento")
         print("4. Modificar evento")
         print("5. Buscar evento")
-        print("6. Regresar al menu principal")
+        print("6. Ver historial de modificaciones de un evento")
+        print("7. Regresar al menu principal")
         opcion = input("Seleccione una opción: ")
 
         if opcion == "1":
@@ -306,7 +317,28 @@ def menu_eventos(session):
                 print(f"ID: {evento.id_evento} Nombre: {evento.nombre_evento} Tipo: {evento.tipo_evento}")
             else:
                 print("Evento no encontrado")
+
         elif opcion == "6":
+            print("\n --- Ver historial de modificaciones de un evento ---")
+            try:
+                id_evento = int(input("ID del evento: "))
+            except ValueError:
+                print("ID no válido. Intente de nuevo.")
+                continue
+
+            historial = obtener_historial_evento(session, id_evento)
+            if historial:
+                print("\nHistorial de modificaciones:")
+                for cambio in historial:
+                    print(f"Nombre anterior: {cambio['nombre_anterior']}")
+                    print(f"Descripción anterior: {cambio['descripcion_anterior']}")
+                    print(f"Fecha de cambio: {cambio['fecha_cambio']}")
+                    print("-" * 40)
+
+            else:
+                print("Evento no encontrado")
+        elif opcion == "7":
+            print("\nRegresando la menu principal")
             break
         else:
             print("Opción no válida. Intente de nuevo.")

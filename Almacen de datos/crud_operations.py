@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from modelos import Cliente, Empleado, Evento, Salone, Reservacione,AsignacionEmpleado, AsignacionSalone, AsignacionServicio,Servicio,PreciosTemporada, Temporada
+from modelos import Cliente, Empleado, Evento, Salone, Reservacione,AsignacionEmpleado, AsignacionSalone, AsignacionServicio,Servicio,PreciosTemporada, Temporada, HistorialEvento
 from sqlalchemy import and_
 from tabulate import tabulate
 import datetime
@@ -429,8 +429,6 @@ def listar_eventos_por_fecha(session, fecha):
 
 
 #Funcion para calcular el costo total de una rercervacion que hizo Jesus.
-from sqlalchemy import and_
-
 def calcular_costo_reservacion(session, id_reservacion):
     """
     Calcula el costo total de una reservación, incluyendo servicios adicionales.
@@ -481,3 +479,35 @@ def calcular_costo_reservacion(session, id_reservacion):
     # Calcular el costo total
     costo_total = costo_base + costo_servicios
     return costo_total
+
+
+#funcion para obtener el historial de un evento.
+#por medio de una busqueda por id_evento, se obtiene el historial de cambios que coincidan con esa id y lanzara la lista de cambios con la misma id.
+def obtener_historial_evento(session, id_evento):
+    try:
+        # Consultar el historial del evento en la tabla historial_eventos
+        historial = (
+            session.query(HistorialEvento)
+            .filter(HistorialEvento.id_evento == id_evento)
+            .order_by(HistorialEvento.fecha_cambio.desc())
+            .all()
+        )
+
+        if not historial:
+            print(f"No se encontró historial para el evento con ID {id_evento}.")
+            return None
+
+        # Formatear los resultados
+        resultados = []
+        for registro in historial:
+            resultados.append({
+                "nombre_anterior": registro.nombre_anterior,
+                "descripcion_anterior": registro.descripcion_anterior,
+                "fecha_cambio": registro.fecha_cambio.strftime('%Y-%m-%d %H:%M:%S')
+            })
+
+        return resultados
+
+    except Exception as e:
+        print(f"Error al obtener el historial del evento: {e}")
+        return None
