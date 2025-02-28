@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from modelos import Cliente, Empleado, Evento, Salone, Reservacione,AsignacionEmpleado, AsignacionSalone
+from modelos import Cliente, Empleado, Evento, Salone, Reservacione,AsignacionEmpleado, AsignacionSalone, AsignacionServicio,Servicio,PreciosTemporada, Temporada
 from sqlalchemy import and_
 from tabulate import tabulate
 import datetime
@@ -425,3 +425,59 @@ def listar_eventos_por_fecha(session, fecha):
         return "No hay eventos programados para la fecha indicada"
 
     return tabulate(eventos, headers="keys", tablefmt="fancy_grid")
+
+
+
+#Funcion para calcular el costo total de una rercervacion que hizo Jesus.
+from sqlalchemy import and_
+
+def calcular_costo_reservacion(session, id_reservacion):
+    """
+    Calcula el costo total de una reservación, incluyendo servicios adicionales.
+    Considera las tarifas vigentes en la fecha del evento.
+    """
+    # Obtener la reservación
+    reservacion = session.query(Reservacione).filter_by(id_reservacion=id_reservacion).first()
+    if not reservacion:
+        print("Reservación no encontrada.")
+        return None
+
+    # Obtener la fecha del evento
+    fecha_evento = reservacion.fecha_evento
+
+    # Obtener los servicios adicionales contratados
+    servicios_contratados = (
+        session.query(AsignacionServicio, Servicio)
+        .join(Servicio, AsignacionServicio.id_servicio == Servicio.id_servicio)
+        .filter(AsignacionServicio.id_reservacion == id_reservacion)
+        .all()
+    )
+
+    # Calcular el costo total de los servicios adicionales
+    costo_servicios = 0
+    for asignacion, servicio in servicios_contratados:
+        # Verificar si hay una tarifa ajustada por temporada
+        tarifa_ajustada = (
+            session.query(PreciosTemporada.costo_ajustado)
+            .join(Temporada, PreciosTemporada.id_temporada == Temporada.id_temporada)
+            .filter(
+                and_(
+                    Temporada.fecha_inicio <= fecha_evento,
+                    Temporada.fecha_fin >= fecha_evento,
+                    PreciosTemporada.id_servicio == servicio.id_servicio
+                )
+            )
+            .scalar()
+        )
+
+        # Usar la tarifa ajustada si existe, de lo contrario, usar el costo base del servicio
+        costo_servicio = tarifa_ajustada if tarifa_ajustada else servicio.costo
+        costo_servicios += costo_servicio * asignacion.cantidad
+
+    # Supongamos que el costo base de la reservación es el costo del salón o evento
+    # (Aquí puedes ajustar según tu lógica de negocio)
+    costo_base = 0  # Puedes cambiar esto según tu implementación
+
+    # Calcular el costo total
+    costo_total = costo_base + costo_servicios
+    return costo_total

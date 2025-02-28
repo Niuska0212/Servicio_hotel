@@ -14,7 +14,7 @@ from utils import *
 
 
 
-#Funciones de los diferentes menus de los 25 CRUD de las 5 tablas.
+#Funciones de los diferentes menus de los 25 CRUD de las 5 tablas. Mas las demas funciones.
 #Funcion menu de la tabla clientes
 def menu_clientes(session):
     while True:
@@ -397,7 +397,7 @@ def menu_salones(session):
         else:
             print("Opción no válida. Intente de nuevo.")
 
-#ufncion menu de la tabla reservaciones
+#funcion menu de la tabla reservaciones
 def menu_reservaciones(session):
     while True:
         print("\n --- Operaciones con Reservaciones ---")
@@ -406,7 +406,8 @@ def menu_reservaciones(session):
         print("3. Cancelar reservacion")
         print("4. Modificar reservacion")
         print("5. Buscar reservacion")
-        print("6. Regresar al menu principal")
+        print("6. Calcular Costo de Reservacion")
+        print("7. Regresar al menu principal")
         opcion = input("Seleccione una opción: ")
 
         if opcion == "1":
@@ -417,6 +418,7 @@ def menu_reservaciones(session):
                     print(f"ID: {reservacion.id_reservacion} Cliente: {reservacion.cliente.nombre} Fecha: {reservacion.fecha_reservacion} Salón: {reservacion.salon.nombre_salon}")
             else:
                 print("No hay reservaciones registradas")
+
         elif opcion == "2":
             print("\n --- Agregar reservacion ---")
             try:
@@ -435,6 +437,7 @@ def menu_reservaciones(session):
                 print(f"Reservacion {nueva_reservacion.id_reservacion} agregada exitosamente")
             else:
                 print("Error al agregar reservacion")
+
         elif opcion == "3":
             print("\n --- Cancelar reservación ---")
             id_reservacion = input("ID de la reservación: ")
@@ -477,7 +480,8 @@ def menu_reservaciones(session):
             if actualizar_reservacion(session, id_reservacion, id_cliente, id_salon, fecha_reservacion):
                 print(f"Reservacion {id_reservacion} actualizada exitosamente")
             else:
-                print("Error al actualizar reservacion")    
+                print("Error al actualizar reservacion")
+
         elif opcion == "5":
             print("\n --- Buscar reservacion por ID ---")
             try:
@@ -490,11 +494,26 @@ def menu_reservaciones(session):
                 print(f"ID: {reservacion.id_reservacion} Cliente: {reservacion.cliente.nombre} Fecha: {reservacion.fecha_reservacion} Salón: {reservacion.salon.nombre_salon}")
             else:
                 print("Reservacion no encontrada")
+
         elif opcion == "6":
+            print("\n --- Calcular costo de reservación ---")
+            try:
+                id_reservacion = int(input("ID de la reservación: "))
+            except ValueError:
+                print("ID no válido. Intente de nuevo.")
+                continue
+
+            # Llamar a la función para calcular el costo
+            costo_total = calcular_costo_reservacion(session, id_reservacion)
+
+            if costo_total is not None:
+                print(f"El costo total de la reservación {id_reservacion} es: ${costo_total:.2f}")
+
+        elif opcion == "7":
             break
+
         else:
             print("Opción no válida. Intente de nuevo.")
-
 
 
 
