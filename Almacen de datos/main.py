@@ -14,7 +14,7 @@ import re
 #y es mejor que en la base de datos este de esa forma.
 #tambien agrege una validacion de correo electronico
 
-
+##RECUERDEN CAMBIO EL USUARIO, LA CONTRASEÑA Y EL NOMBRE DE LA BASE DE DATOS, SEGUN SU CONFIGURACION DE POSTGRESQL
 
 #Funciones de los diferentes menus de los 25 CRUD de las 5 tablas. Mas las demas funciones.
 #Funcion menu de la tabla clientes
