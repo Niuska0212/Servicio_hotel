@@ -26,18 +26,13 @@ def menu_clientes(session):
         print("3. Eliminar cliente")
         print("4. Modificar cliente")
         print("5. Buscar cliente")
-        print("6. Listar eventos por fecha")
-        print("7. Regresar al menu principal")
+        print("6. Regresar al menu principal")
         opcion = input("Seleccione una opción: ")
 
         if opcion == "1":
             print("\n --- Listar clientes ---")
             Clientes = listar_clientes(session)
-            if Clientes:
-                for cliente in Clientes:
-                    print(f"ID: {cliente.id_cliente} Nombre: {cliente.nombre} Correo: {cliente.correo} Telefono: {cliente.telefono} Direccion: {cliente.direccion}")
-            else:
-                print("No hay clientes registrados")
+            print(Clientes)
         elif opcion == "2":
             print("\n --- Agregar cliente ---")
             nombre = input("Nombre: ")
@@ -104,20 +99,9 @@ def menu_clientes(session):
                 continue
 
             cliente = buscar_cliente(session, id_cliente)
-            if cliente:
-                print(f"ID: {cliente.id_cliente} Nombre: {cliente.nombre} Correo: {cliente.correo} Telefono: {cliente.telefono} Direccion: {cliente.direccion}")
-            else:
-                print("Cliente no encontrado")
+            print(cliente)
+
         elif opcion == "6":
-            print("\n --- Listar eventos por fecha ---")
-            # Implementar la función de listar eventos por fecha
-            fecha = input("Ingresa la fecha (YYYY-MM-DD): ")
-            try:
-                eventos = listar_eventos_por_fecha(session, fecha)
-                print(eventos)
-            except Exception as e:
-                print(f"Error al listar eventos!, procura escribir la fecha en el formato correcto YYYY-MM-DD") 
-        elif opcion == "7":
             print("Regresando al menu principal")
             break
         else:
@@ -140,11 +124,8 @@ def menu_empleados(session):
         if opcion == "1":
             print("\n --- Listar empleados ---")
             empleados = listar_empleados(session)
-            if empleados:
-                for empleado in empleados:
-                    print(f"ID: {empleado.id_empleado} Nombre: {empleado.nombre} Rol: {empleado.rol}")
-            else:
-                print("No hay empleados registrados")
+            print(empleados)
+
         elif opcion == "2":
             print("\n --- Agregar empleado ---")
             nombre = input("Nombre: ")
@@ -203,10 +184,7 @@ def menu_empleados(session):
                 continue
 
             empleado = buscar_empleado(session, id_empleado)
-            if empleado:
-                print(f"ID: {empleado.id_empleado} Nombre: {empleado.nombre} Rol: {empleado.rol}")
-            else:
-                print("Empleado no encontrado")
+            print(empleado)
         elif opcion == "6":
             print("\n --- Encontrar empleados disponibles por rol en un rango de fechas ---")
             rol = input("Rol [mesero, coordinador, chef, musico]: ").strip().lower()
@@ -243,17 +221,14 @@ def menu_eventos(session):
         print("4. Modificar evento")
         print("5. Buscar evento")
         print("6. Ver historial de modificaciones de un evento")
-        print("7. Regresar al menu principal")
+        print("7. Listar eventos por fecha")
+        print("8. Regresar al menu principal")
         opcion = input("Seleccione una opción: ")
 
         if opcion == "1":
             print("\n --- Listar eventos ---")
             eventos = listar_eventos(session)
-            if eventos:
-                for evento in eventos:
-                    print(f"ID: {evento.id_evento} Nombre: {evento.nombre_evento} Tipo: {evento.tipo_evento}")
-            else:
-                print("No hay eventos registrados")
+            print(eventos)
         elif opcion == "2":
             print("\n --- Agregar evento ---")
             nombre_evento = input("Nombre: ")
@@ -313,10 +288,7 @@ def menu_eventos(session):
                 print("ID no válido. Intente de nuevo.")
                 continue
             evento = buscar_evento(session, id_evento)
-            if evento:
-                print(f"ID: {evento.id_evento} Nombre: {evento.nombre_evento} Tipo: {evento.tipo_evento}")
-            else:
-                print("Evento no encontrado")
+            print(evento)
 
         elif opcion == "6":
             print("\n --- Ver historial de modificaciones de un evento ---")
@@ -327,17 +299,19 @@ def menu_eventos(session):
                 continue
 
             historial = obtener_historial_evento(session, id_evento)
-            if historial:
-                print("\nHistorial de modificaciones:")
-                for cambio in historial:
-                    print(f"Nombre anterior: {cambio['nombre_anterior']}")
-                    print(f"Descripción anterior: {cambio['descripcion_anterior']}")
-                    print(f"Fecha de cambio: {cambio['fecha_cambio']}")
-                    print("-" * 40)
+            print(historial)
 
-            else:
-                print("Evento no encontrado")
         elif opcion == "7":
+            print("\n --- Listar eventos por fecha ---")
+            # Implementar la función de listar eventos por fecha
+            fecha = input("Ingresa la fecha (YYYY-MM-DD): ")
+            try:
+                eventos = listar_eventos_por_fecha(session, fecha)
+                print(eventos)
+            except Exception as e:
+                print(f"Error al listar eventos!, procura escribir la fecha en el formato correcto YYYY-MM-DD")
+
+        elif opcion == "8":
             print("\nRegresando la menu principal")
             break
         else:
@@ -358,11 +332,7 @@ def menu_salones(session):
         if opcion == "1":
             print("\n --- Listar salones ---")
             salones = listar_salones(session)
-            if salones:
-                for salon in salones:
-                    print(f"ID: {salon.id_salon} Nombre: {salon.nombre_salon} Capacidad: {salon.capacidad}")
-            else:
-                print("No hay salones registrados")
+            print(salones)
         elif opcion == "2":
             print("\n --- Agregar salón ---")
             nombre_salon = input("Nombre: ")
@@ -420,10 +390,7 @@ def menu_salones(session):
                 print("ID no válido. Intente de nuevo.")
                 continue
             salon = buscar_salon(session, id_salon)
-            if salon:
-                print(f"ID: {salon.id_salon} Nombre: {salon.nombre_salon} Capacidad: {salon.capacidad}")
-            else:
-                print("Salón no encontrado")
+            print(salon)
         elif opcion == "6":
             break
         else:
@@ -445,11 +412,12 @@ def menu_reservaciones(session):
         if opcion == "1":
             print("\n --- Listar reservaciones ---")
             reservaciones = listar_reservaciones(session)
-            if reservaciones:
-                for reservacion in reservaciones:
-                    print(f"ID: {reservacion.id_reservacion} Cliente: {reservacion.cliente.nombre} Fecha de solicitud: {reservacion.fecha_solicitud} Fecha del evento: {reservacion.fecha_evento} Estado: {reservacion.estado_reservacion}")
-            else:
-                print("No hay reservaciones registradas")
+            print(reservaciones)
+            # if reservaciones:
+            #     for reservacion in reservaciones:
+            #         print(f"ID: {reservacion.id_reservacion} Cliente: {reservacion.cliente.nombre} Fecha de solicitud: {reservacion.fecha_solicitud} Fecha del evento: {reservacion.fecha_evento} Estado: {reservacion.estado_reservacion}")
+            # else:
+            #     print("No hay reservaciones registradas")
 
         elif opcion == "2":
             print("\n --- Agregar reservacion ---")
@@ -521,11 +489,13 @@ def menu_reservaciones(session):
             except ValueError:
                 print("ID no válido. Intente de nuevo.")
                 continue
+
             reservacion = buscar_reservacion(session, id_reservacion)
-            if reservacion:
-                print(f"ID: {reservacion.id_reservacion} Cliente: {reservacion.cliente.nombre} Fecha: {reservacion.fecha_reservacion} Salón: {reservacion.salon.nombre_salon}")
-            else:
-                print("Reservacion no encontrada")
+            print(reservacion)
+            # if reservacion:
+            #     print(f"ID: {reservacion.id_reservacion} Cliente: {reservacion.cliente.nombre} Fecha: {reservacion.fecha_reservacion} Salón: {reservacion.salon.nombre_salon}")
+            # else:
+            #     print("Reservacion no encontrada")
 
         elif opcion == "6":
             print("\n --- Calcular costo de reservación ---")
@@ -596,7 +566,7 @@ def seleccionar_menu(session):
 #Esta funcion es la que se encarga de conectar a la base de datos y cerrar la conexion
 #al finalizar el programa.
 if __name__ == "__main__":
-    DATABASE_URL = "postgresql://postgres:12345@localhost/hotel"
+    DATABASE_URL = "postgresql://postgres:matraca04@localhost:5434/hotel_db"
     engine = create_engine(DATABASE_URL)
     Session = sessionmaker(bind=engine)
     session = Session()

@@ -14,11 +14,20 @@ import datetime
 
 #CRUD para la tabla Cliente
 def listar_clientes(session):
-    clientes = session.query(Cliente).all()
-    if clientes:
-        return clientes
-    print("No hay clientes registrados.")
-    return None
+    clientes = (session.query(Cliente).all())
+    resultados = []
+    for cliente in clientes:
+        resultados.append({
+            "ID": cliente.id_cliente,
+            "Nombre": cliente.nombre,
+            "Correo": cliente.correo,
+            "Telefono": cliente.telefono,
+            "Direccion": cliente.direccion
+        })
+
+    if not resultados:
+        return "No hay clientes registrados."
+    return tabulate(resultados, headers="keys", tablefmt="fancy_grid")
 
 def agregar_cliente(session,nombre, correo, telefono = None, direccion = None):
     if not nombre or not correo:
@@ -71,10 +80,19 @@ def actualizar_cliente(session, id_cliente, nombre=None, correo=None, telefono=N
 
 def buscar_cliente(session, id_cliente):
     cliente = session.query(Cliente).filter_by(id_cliente = id_cliente).first()
+    resultados = []
     if cliente:
-        return cliente
-    print("Cliente no encontrado.")
-    return None
+        resultados.append({
+            "ID": cliente.id_cliente,
+            "Nombre": cliente.nombre,
+            "Correo": cliente.correo,
+            "Telefono": cliente.telefono,
+            "Direccion": cliente.direccion
+        })
+    
+    if not resultados:
+        return "Cliente no encontrado."
+    return tabulate(resultados, headers="keys", tablefmt="fancy_grid")
 
 
 
@@ -82,10 +100,17 @@ def buscar_cliente(session, id_cliente):
 
 def listar_empleados(session):
     empleados = session.query(Empleado).all()
-    if empleados:
-        return empleados
-    print("No hay empleados registrados.")
-    return None
+    resultados = []
+    for empleado in empleados:
+        resultados.append({
+            "ID": empleado.id_empleado,
+            "Nombre": empleado.nombre,
+            "Rol": empleado.rol
+        })
+    
+    if not resultados:
+        return "No hay empleados registrados."
+    return tabulate(resultados, headers="keys", tablefmt="fancy_grid")
 
 def agregar_empleado(session, nombre, rol):
     if not nombre or not rol:
@@ -133,20 +158,34 @@ def actualizar_empleado(session, id_empleado, nombre=None, rol=None):
 
 def buscar_empleado(session, id_empleado):
     empleado = session.query(Empleado).filter_by(id_empleado = id_empleado).first()
+    resultados = []
     if empleado:
-        return empleado
-    print("Empleado no encontrado.")
-    return None
+        resultados.append({
+            "ID": empleado.id_empleado,
+            "Nombre": empleado.nombre,
+            "Rol": empleado.rol
+        })
+        return tabulate(resultados, headers="keys", tablefmt="fancy_grid")
+    return "Empleado no encontrado."
 
 
 #CRUD para la tabla Eventos
 
 def listar_eventos(session):
     eventos = session.query(Evento).all()
-    if eventos:
-        return eventos
-    print("No hay eventos registrados.")
-    return None
+    resultados = []
+
+    for evento in eventos:
+        resultados.append({
+            "ID": evento.id_evento,
+            "Nombre": evento.nombre_evento,
+            "Descripcion": evento.descripcion,
+            "Tipo": evento.tipo_evento,
+        })
+
+    if not resultados:
+        return "No hay eventos registrados."
+    return tabulate(resultados, headers="keys", tablefmt="fancy_grid")
 
 def agregar_evento(session, nombre_evento, descripcion, tipo_evento):
     if not nombre_evento or not descripcion or not tipo_evento:
@@ -198,19 +237,35 @@ def actualizar_evento(session, id_evento, nombre_evento=None, descripcion=None, 
 
 def buscar_evento(session, id_evento):
     evento = session.query(Evento).filter_by(id_evento = id_evento).first()
+    resultado = []
     if evento:
-        return evento
-    print("Evento no encontrado.")
-    return None
+        resultado.append({
+            "ID": evento.id_evento,
+            "Nombre": evento.nombre_evento,
+            "Descripcion": evento.descripcion,
+            "Tipo": evento.tipo_evento
+        })
+        return tabulate(resultado, headers="keys", tablefmt="fancy_grid")
+
+    return "Evento no encontrado."
 
 
 #Crud para la tabla Salones
 def listar_salones(session):
     salones = session.query(Salone).all()
-    if salones:
-        return salones
-    print("No hay salones registrados.")
-    return None
+    resultados = []
+    for salon in salones:
+        resultados.append({
+            "ID": salon.id_salon,
+            "Nombre": salon.nombre_salon,
+            "Capacidad": salon.capacidad,
+            "Descripcion": salon.descripcion
+        })
+
+    if not resultados:
+        return "No hay salones registrados."
+    
+    return tabulate(resultados, headers="keys", tablefmt="fancy_grid")
 
 def agregar_salon(session,nombre_salon, capacidad, descripcion):
     if not nombre_salon or not capacidad or not descripcion:
@@ -261,18 +316,35 @@ def actualizar_salon(session, id_salon, nombre_salon=None, capacidad=None, descr
 
 def buscar_salon(session, id_salon):
     salon = session.query(Salone).filter_by(id_salon = id_salon).first()
+    resultados = []
     if salon:
-        return salon
-    print("Salon no encontrado.")
-    return None
+        resultados.append({
+            "ID": salon.id_salon,
+            "Nombre": salon.nombre_salon,
+            "Capacidad": salon.capacidad,
+            "Descripcion": salon.descripcion
+        })
+        return tabulate(resultados, headers="keys", tablefmt="fancy_grid")
+    return "Salon no encontrado."
 
 #CRUD para la table reservaciones
 def listar_reservaciones(session):
     reservaciones = session.query(Reservacione).all()
-    if reservaciones:
-        return reservaciones
-    print("No hay reservaciones registradas.")
-    return None
+    resultados = []
+
+    for reservacion in reservaciones:
+        resultados.append({
+            "ID": reservacion.id_reservacion,
+            "Cliente": reservacion.cliente.nombre,
+            "Evento": reservacion.evento.nombre_evento,
+            "Fecha Solicitud": reservacion.fecha_solicitud,
+            "Fecha Evento": reservacion.fecha_evento,
+            "Estado Reservacion": reservacion.estado_reservacion
+        })
+
+    if not resultados:
+        return "No hay reservaciones registradas."
+    return tabulate(resultados, headers="keys", tablefmt="fancy_grid")
 
 def agregar_reservacion(session, id_cliente, id_evento, id_salon, fecha_solicitud, fecha_evento, hora_evento, cantidad_personas):
     if not id_cliente or not id_evento or not id_salon or not fecha_solicitud or not fecha_evento or not hora_evento or not cantidad_personas:
@@ -358,10 +430,21 @@ def actualizar_reservacion(session, id_reservacion, id_cliente=None, id_evento=N
 
 def buscar_reservacion(session, id_reservacion):
     reservacion = session.query(Reservacione).filter_by(id_reservacion = id_reservacion).first()
+    resultados = []
+
     if reservacion:
-        return reservacion
-    print("Reservacion no encontrada.")
-    return None
+        resultados.append({
+            "ID": reservacion.id_reservacion,
+            "Cliente": reservacion.cliente.nombre,
+            "Evento": reservacion.evento.nombre_evento,
+            "Fecha Solicitud": reservacion.fecha_solicitud,
+            "Fecha Evento": reservacion.fecha_evento,
+            "Estado Reservacion": reservacion.estado_reservacion
+        })
+
+    if not resultados:
+        return "Reservacion no encontrada."
+    return tabulate(resultados, headers="keys", tablefmt="fancy_grid")
 
 
 
@@ -385,14 +468,14 @@ def encontrar_empleados_disponibles(session, rol, fecha_inicio, fecha_fin):
                     break 
 
             if disponible:
-                empleados_finales.append(empleado)
+                empleados_finales.append({
+                    "iD": empleado.id_empleado,
+                    "Nombre": empleado.nombre
+                })
 
-        if empleados_finales:
-            print(f"\nEmpleados disponibles para el rol '{rol}' entre {fecha_inicio} y {fecha_fin}:")
-            for empleado in empleados_finales:
-                print(f"ID: {empleado.id_empleado}, Nombre: {empleado.nombre}")
-        else:
-            print(f"\nNo hay empleados disponibles para el rol '{rol}' entre {fecha_inicio} y {fecha_fin}.")
+        if not empleados_finales:
+            return "No hay empleados disponibles en esas fechas."
+        print(tabulate(empleados_finales, headers="keys", tablefmt="fancy_grid"))
 
     except Exception as e:
         print(f"\nError inesperado: {e}")
@@ -513,7 +596,11 @@ def obtener_historial_evento(session, id_evento):
                 "fecha_cambio": registro.fecha_cambio.strftime('%Y-%m-%d %H:%M:%S')
             })
 
-        return resultados
+        if not resultados:
+            print(f"No se encontró historial para el evento con ID {id_evento}.")
+            return None
+        
+        return tabulate(resultados, headers="keys", tablefmt="fancy_grid")
 
     except Exception as e:
         print(f"Error al obtener el historial del evento: {e}")
