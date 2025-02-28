@@ -566,7 +566,7 @@ def seleccionar_menu(session):
 #Esta funcion es la que se encarga de conectar a la base de datos y cerrar la conexion
 #al finalizar el programa.
 if __name__ == "__main__":
-    DATABASE_URL = "postgresql://postgres:password@localhost/hotel_db"
+    DATABASE_URL = "postgresql://postgres:12345@localhost/hotel"
     engine = create_engine(DATABASE_URL)
     Session = sessionmaker(bind=engine)
     session = Session()
