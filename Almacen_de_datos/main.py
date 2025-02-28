@@ -10,7 +10,8 @@ def mostrar_menu():
     print("4. Actualizar cliente")
     print("5. Eliminar cliente")
     print("6. Listar eventos por fecha")
-    print("7. Salir")
+    print("7. Listar eventos con servicio de catering por mes")
+    print("8. Salir")
 
 if __name__ == "__main__":
     DATABASE_URL = "postgresql://postgres:matraca04@localhost:5434/hotel_db"
@@ -54,10 +55,6 @@ if __name__ == "__main__":
             telefono = input("Nuevo teléfono (deja vacío para no cambiar): ")
             direccion = input("Nueva dirección (deja vacío para no cambiar): ")
             cliente_actualizado = actualizar_cliente(session, id_cliente, nombre or None, correo or None, telefono or None, direccion or None)
-            # if cliente_actualizado:
-            #     print(f"Cliente actualizado: {cliente_actualizado.nombre}")
-            # else:
-            #     print("No se encontró el cliente para actualizar.")
 
         elif opcion == "5":
             print("\nEliminar cliente")
@@ -76,8 +73,20 @@ if __name__ == "__main__":
                 print(f"Error al listar eventos!, procura escribir la fecha en el formato correcto YYYY-MM-DD") 
 
         elif opcion == "7":
-            print("Saliendo del programa. ¡Hasta luego!")
+            print("\nListar evento con servicio de catering por mes")
+
+            try: 
+                mes = int(input("Ingresa el mes (1-12): "))
+                año = int(input("Ingresa el año (YYYY): "))
+                eventos = listar_eventos_por_mes_con_catering(session, mes, año)
+                print(eventos)
+            except:
+                print("Error al listar eventos, procura ingresar un mes y año válidos")
+
+        elif opcion == "8":
+            print("\nSaliendo del programa. Hasta Luego!")
             break
+
 
         else:
             print("Opción no válida. Por favor, elige una opción del 1 al 7.")

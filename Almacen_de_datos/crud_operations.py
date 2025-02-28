@@ -1,6 +1,7 @@
 # from sqlalchemy import create_engine
 # from sqlalchemy.orm import sessionmaker
-from modelos import Cliente, Empleado, Evento, Salone, Servicio, Reservacione, AsignacionSalone
+from modelos import Cliente, Empleado, Evento, Salone, Servicio, Reservacione, AsignacionSalone, AsignacionServicio
+from sqlalchemy import extract
 from sqlalchemy import and_
 from tabulate import tabulate
 
@@ -110,3 +111,50 @@ def listar_eventos_por_fecha(session, fecha):
         return "No hay eventos programados para la fecha indicada"
 
     return tabulate(eventos, headers="keys", tablefmt="fancy_grid")
+
+def listar_eventos_por_mes_con_catering(session, mes, año):
+    resultados = (
+        session.query(
+            Evento.nombre_evento,
+            Evento.tipo_evento,
+            Reservacione.fecha_evento,
+            Cliente.nombre.label('cliente'),
+            Salone.nombre_salon,
+            Servicio.nombre_servicio,
+            Evento.descripcion,
+            AsignacionServicio.cantidad
+        )
+        .join(Reservacione, Evento.id_evento == Reservacione.id_evento)
+        .join(Cliente, Reservacione.id_cliente == Cliente.id_cliente)
+        .join(AsignacionSalone, Reservacione.id_reservacion == AsignacionSalone.id_reservacion)
+        .join(Salone, AsignacionSalone.id_salon == Salone.id_salon)
+        .join(AsignacionServicio, Reservacione.id_reservacion == AsignacionServicio.id_reservacion)
+        .join(Servicio, AsignacionServicio.id_servicio == Servicio.id_servicio)
+        .filter(
+            Servicio.nombre_servicio == 'catering',
+            extract('month', Reservacione.fecha_evento) == mes,
+            extract('year', Reservacione.fecha_evento) == año,
+            Reservacione.estado_reservacion == 'activa'
+        )
+        .order_by(Reservacione.fecha_evento)
+        .all()
+    )
+
+    eventos = []
+    for nombre_evento, tipo_evento, fecha_evento, cliente, nombre_salon, nombre_servicio, descripcion, cantidad in resultados:
+        eventos.append({
+            "nombre_evento": nombre_evento,
+            "tipo_evento": tipo_evento,
+            "fecha_evento": fecha_evento.strftime('%Y-%m-%d %H:%M:%S'),
+            "cliente": cliente,
+            "ubicacion": nombre_salon,
+            "servicio": nombre_servicio,
+            "descripcion": descripcion,
+            "asistentes": cantidad
+        })
+
+    if not eventos:
+        return "No hay eventos programados para el mes indicado"
+
+    return tabulate(eventos, headers="keys", tablefmt="fancy_grid")
+
