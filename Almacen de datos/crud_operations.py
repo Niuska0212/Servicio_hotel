@@ -1,7 +1,6 @@
-from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from modelos import Cliente, Empleado, Evento, Salone, Reservacione,AsignacionEmpleado, AsignacionSalone, AsignacionServicio,Servicio,PreciosTemporada, Temporada, HistorialEvento
-from sqlalchemy import and_
+from modelos import Cliente, Empleado, Evento, Salone, Reservacione,AsignacionEmpleado, AsignacionSalone, AsignacionServicio,Servicio,PreciosTemporada, Temporada, HistorialEvento,Facturacion
+from sqlalchemy import and_, func
 from tabulate import tabulate
 import datetime
 
@@ -275,12 +274,20 @@ def listar_reservaciones(session):
     print("No hay reservaciones registradas.")
     return None
 
-def agregar_reservacion(session, id_cliente, id_evento, id_salon, fecha_reservacion, fecha_evento, hora_evento, cantidad_personas):
-    if not id_cliente or not id_evento or not id_salon or not fecha_reservacion or not fecha_evento or not hora_evento or not cantidad_personas:
-        print("El id del cliente, id del evento, id del salon, fecha de reservacion, fecha del evento, hora del evento y cantidad de personas son obligatorios.")
+def agregar_reservacion(session, id_cliente, id_evento, id_salon, fecha_solicitud, fecha_evento, hora_evento, cantidad_personas):
+    if not id_cliente or not id_evento or not id_salon or not fecha_solicitud or not fecha_evento or not hora_evento or not cantidad_personas:
+        print("El id del cliente, id del evento, id del salon, fecha de solicitud, fecha del evento, hora del evento y cantidad de personas son obligatorios.")
         return None
     try:
-        nueva_reservacion = Reservacione(id_cliente = id_cliente, id_evento = id_evento, id_salon = id_salon, fecha_reservacion = fecha_reservacion, fecha_evento = fecha_evento, hora_evento = hora_evento, cantidad_personas = cantidad_personas)
+        nueva_reservacion = Reservacione(
+            id_cliente=id_cliente,
+            id_evento=id_evento,
+            id_salon=id_salon,
+            fecha_solicitud=fecha_solicitud,
+            fecha_evento=fecha_evento,
+            hora_evento=hora_evento,
+            cantidad_personas=cantidad_personas
+        )
         session.add(nueva_reservacion)
         session.commit()
         print("Reservacion agregada correctamente.")
@@ -322,8 +329,8 @@ def cancelar_reservacion(session, id_reservacion):
     return False
 
 
-def actualizar_reservacion(session, id_reservacion, id_cliente=None, id_evento=None, id_salon=None, fecha_reservacion=None, fecha_evento=None, hora_evento=None, cantidad_personas=None):
-    reservacion = session.query(Reservacione).filter_by(id_reservacion = id_reservacion).first()
+def actualizar_reservacion(session, id_reservacion, id_cliente=None, id_evento=None, id_salon=None, fecha_solicitud=None, fecha_evento=None, hora_evento=None, cantidad_personas=None):
+    reservacion = session.query(Reservacione).filter_by(id_reservacion=id_reservacion).first()
     if reservacion:
         try:
             if id_cliente:
@@ -332,8 +339,8 @@ def actualizar_reservacion(session, id_reservacion, id_cliente=None, id_evento=N
                 reservacion.id_evento = id_evento
             if id_salon:
                 reservacion.id_salon = id_salon
-            if fecha_reservacion:
-                reservacion.fecha_reservacion = fecha_reservacion
+            if fecha_solicitud:
+                reservacion.fecha_solicitud = fecha_solicitud
             if fecha_evento:
                 reservacion.fecha_evento = fecha_evento
             if hora_evento:
@@ -510,4 +517,72 @@ def obtener_historial_evento(session, id_evento):
 
     except Exception as e:
         print(f"Error al obtener el historial del evento: {e}")
+        return None
+    
+
+
+#Funcion para generar informes de ingreso por mes y desgrosar por tipo de evento.
+def generar_informe_ingresos_por_mes(session, año, mes):
+    """
+    Genera un informe de ingresos por mes, desglosado por tipo de evento.
+    :param session: Sesión de SQLAlchemy.
+    :param año: Año para el cual se desea generar el informe.
+    :param mes: Mes para el cual se desea generar el informe.
+    :return: Lista de diccionarios con el total de ingresos por tipo de evento.
+    """
+    try:
+        # Validar el mes
+        mes = int(mes)
+        if mes < 1 or mes > 12:
+            print("El mes debe estar en el rango de 1 a 12.")
+            return None
+
+        # Validar el año
+        año = int(año)
+        if año < 1900 or año > 2100:  # Ajusta el rango según sea necesario
+            print("El año debe ser un valor válido.")
+            return None
+
+        # Definir el rango de fechas para el mes especificado
+        fecha_inicio = datetime.datetime(año, mes, 1)  # Primer día del mes
+        if mes == 12:
+            fecha_fin = datetime.datetime(año + 1, 1, 1)  # Primer día del siguiente año
+        else:
+            fecha_fin = datetime.datetime(año, mes + 1, 1)  # Primer día del siguiente mes
+
+        # Consulta para obtener los ingresos por tipo de evento
+        resultados = (
+            session.query(
+                Evento.tipo_evento,
+                func.sum(Facturacion.monto_convertido).label("total_ingresos")
+            )
+            .join(Reservacione, Evento.id_evento == Reservacione.id_evento)
+            .join(Facturacion, Reservacione.id_reservacion == Facturacion.id_reservacion)
+            .filter(and_(
+                Facturacion.fecha_pago >= fecha_inicio,
+                Facturacion.fecha_pago < fecha_fin
+            ))
+            .group_by(Evento.tipo_evento)
+            .all()
+        )
+
+        if not resultados:
+            print(f"No se encontraron ingresos para el mes {mes}/{año}.")
+            return None
+
+        # Formatear los resultados
+        informe = []
+        for tipo_evento, total_ingresos in resultados:
+            informe.append({
+                "tipo_evento": tipo_evento,
+                "total_ingresos": float(total_ingresos)  # Convertir a float para mejor manejo
+            })
+
+        return informe
+
+    except ValueError:
+        print("El mes o el año no son valores válidos.")
+        return None
+    except Exception as e:
+        print(f"Error al generar el informe de ingresos: {e}")
         return None

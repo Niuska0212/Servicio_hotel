@@ -447,7 +447,7 @@ def menu_reservaciones(session):
             reservaciones = listar_reservaciones(session)
             if reservaciones:
                 for reservacion in reservaciones:
-                    print(f"ID: {reservacion.id_reservacion} Cliente: {reservacion.cliente.nombre} Fecha: {reservacion.fecha_reservacion} Salón: {reservacion.salon.nombre_salon}")
+                    print(f"ID: {reservacion.id_reservacion} Cliente: {reservacion.cliente.nombre} Fecha de solicitud: {reservacion.fecha_solicitud} Fecha del evento: {reservacion.fecha_evento} Estado: {reservacion.estado_reservacion}")
             else:
                 print("No hay reservaciones registradas")
 
@@ -557,7 +557,8 @@ def mostrar_menu():
     print("3. Operaciones con Eventos")
     print("4. Operaciones con Salones")
     print("5. Operaciones con Reservaciones")
-    print("6. Salir")
+    print("6. Generar informe de ingresos por mes")
+    print("7. Salir")
 
 #Esta funcion es la que se encarga de seleccionar el menu que se desea ver
 #aqui pueden poner las funciones de sus menus.
@@ -575,8 +576,19 @@ def seleccionar_menu(session):
         elif opcion == "4":
             menu_salones(session)
         elif opcion == "5":
-            menu_reservaciones(session)    
+            menu_reservaciones(session)   
         elif opcion == "6":
+            print("\n --- Generar informe de ingresos por mes ---")
+            año = input("Ingrese el año (YYYY): ")
+            mes = input("Ingrese el mes (MM): ")
+            informe = generar_informe_ingresos_por_mes(session, año, mes)
+            if informe:
+                print("\nInforme de ingresos por mes:")
+                for item in informe:
+                    print(f"Tipo de evento: {item['tipo_evento']}, Ingresos: ${item['total_ingresos']:.2f}")
+        
+        elif opcion == "7":
+            print("Nos vemos!")
             break
         else:
             print("Opcion no valida. Intente de nuevo.")
